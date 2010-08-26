@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.napkindrawing</groupId>
+  <artifactId>dbversion</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+
+  <name>dbversion</name>
+  <url>http://github.org/napkindrawing/dbversion</url>
+  
+  <developers>
+    <developer>
+      <id>mwalker</id>
+      <name>Mike Walker</name>
+      <email>mike.walker@napkindrawing.com</email>
+    </developer>
+  </developers>
+  
+  <organization>
+    <name>Napkin Drawing</name>
+    <url>http://www.napkindrawing.com/</url>
+  </organization>
+
+  <properties>
+    <!-- Maven Properties -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    <!-- Misc Properties -->
+    <version-compile-jdk>1.6</version-compile-jdk>
+    
+    <!-- Dependency Versions -->
+    <version-ant>1.8.1</version-ant>
+    <version-junit>4.8.1</version-junit>
+    <version-commons-io>1.4</version-commons-io>
+    
+    <!-- Plugin Versions -->
+    <version-plugin-compiler>2.0.2</version-plugin-compiler>
+    <version-plugin-surefire>2.4.3</version-plugin-surefire>
+    
+  </properties>
+
+  <dependencies>
+    
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${version-commons-io}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>${version-ant}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${version-junit}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+  
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version-plugin-compiler}</version>
+        <configuration>
+          <source>${version-compile-jdk}</source>
+          <target>${version-compile-jdk}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version-plugin-surefire}</version>
+      </plugin>
+    </plugins>
+  
+  </build>
+  
+</project>

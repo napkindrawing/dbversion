@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="DbVersionTest" basedir="." default="status">
+
+    <path id="class.path">
+      <pathelement location="/home/mwalker/.m2/repository/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar" />
+      <pathelement location="/home/mwalker/.m2/repository/commons-io/commons-io/1.4/commons-io-1.4.jar" />
+    </path>
+
+    <taskdef name="dbVersionStatus"
+             classname="com.napkindrawing.dbversion.task.DbVersionStatus"/>
+
+    <taskdef name="dbVersionInit"
+             classname="com.napkindrawing.dbversion.task.DbVersionInit"/>
+    
+    <taskdef name="dbVersionInfo"
+             classname="com.napkindrawing.dbversion.task.DbVersionInfo" />
+    
+    <target name="status">
+        <dbVersionStatus driver="com.mysql.jdbc.Driver"
+                         url="jdbc:mysql://localhost/foo"
+                         userid="root"
+                         password="toor"
+                         classpathref="class.path">
+          <loaderProperty name="profiles.path" value="./sql" />
+        </dbVersionStatus>
+    </target>
+    
+    <target name="info">
+        <dbVersionInfo driver="com.mysql.jdbc.Driver"
+                         url="jdbc:mysql://localhost/foo"
+                         userid="root"
+                         password="toor"
+                         classpathref="class.path">
+          <loaderProperty name="profiles.path" value="./sql" />
+        </dbVersionInfo>
+    </target>
+    
+    <target name="init">
+        <dbVersionInit driver="com.mysql.jdbc.Driver"
+                         url="jdbc:mysql://localhost/foo"
+                         userid="root"
+                         password="toor"
+                         classpathref="class.path">
+          <loaderProperty name="profiles.path" value="./sql" />
+        </dbVersionInit>
+    </target>
+    
+    <target name="upgrade">
+        <dbVersionInit driver="com.mysql.jdbc.Driver"
+                         url="jdbc:mysql://localhost/foo"
+                         userid="root"
+                         password="toor"
+                         profiles="restaurant"
+                         classpathref="class.path">
+          <loaderProperty name="profiles.path" value="./sql" />
+        </dbVersionInit>
+    </target>
+
+</project>
