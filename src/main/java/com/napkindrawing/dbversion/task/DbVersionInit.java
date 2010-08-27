@@ -11,13 +11,24 @@ import org.apache.tools.ant.BuildException;
 
 public class DbVersionInit extends DbVersionCommand {
     
+    private Boolean forceInit = false;
+    
     public DbVersionInit() {
         super();
+        checkInitTables = false;
     }
     
     @Override
     public void execute() throws BuildException {
         super.execute();
+        
+        if(canQueryRevisionTable()) {
+            if(forceInit) {
+                System.out.println("Removing existing revision tables");
+            } else {
+                throw new BuildException("Database at " + getUrl() + " already initialized, to reinitialize set forceInit=true");
+            }
+        }
         
         Connection conn = getConnection();
         Statement createStmt = null;
@@ -60,6 +71,10 @@ public class DbVersionInit extends DbVersionCommand {
             }
         }
         System.out.println(" ... done!");
+    }
+
+    public void setForceInit(Boolean forceInit) {
+        this.forceInit = forceInit;
     }
     
 }

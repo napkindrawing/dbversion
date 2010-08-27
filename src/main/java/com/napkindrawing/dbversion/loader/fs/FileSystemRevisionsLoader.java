@@ -2,10 +2,11 @@ package com.napkindrawing.dbversion.loader.fs;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.napkindrawing.dbversion.Revision;
+import com.napkindrawing.dbversion.Version;
 import com.napkindrawing.dbversion.loader.RevisionLoader;
 import com.napkindrawing.dbversion.loader.RevisionsLoader;
 
@@ -14,9 +15,9 @@ public class FileSystemRevisionsLoader extends FileSystemLoader implements Revis
     private RevisionLoader revisionLoader;
     
     @Override
-    public List<Revision> loadRevisions(String profileName) {
+    public SortedSet<Revision> loadRevisions(String profileName) {
 
-        List<Revision> revisions = new ArrayList<Revision>();
+        SortedSet<Revision> revisions = new TreeSet<Revision>();
         
         File profileDir = getProfileDir(profileName);
 
@@ -28,7 +29,7 @@ public class FileSystemRevisionsLoader extends FileSystemLoader implements Revis
         };
         for(File revFile : profileDir.listFiles(sqlFileFilter)) {
             String version = revFile.getName().substring(0, 5);
-            Revision revision = revisionLoader.loadRevision(profileName, version);
+            Revision revision = revisionLoader.loadRevision(profileName, new Version(version));
             revisions.add(revision);
         }
         return revisions;

@@ -1,10 +1,10 @@
 package com.napkindrawing.dbversion;
 
-import java.util.List;
+import java.util.SortedSet;
 
 public class Profile {
     private String name;
-    private List<Revision> revisions;
+    private SortedSet<Revision> revisions;
     
     public String getName() {
         return name;
@@ -12,10 +12,10 @@ public class Profile {
     public void setName(String name) {
         this.name = name;
     }
-    public List<Revision> getRevisions() {
+    public SortedSet<Revision> getRevisions() {
         return revisions;
     }
-    public void setRevisions(List<Revision> revisions) {
+    public void setRevisions(SortedSet<Revision> revisions) {
         this.revisions = revisions;
     }
 }

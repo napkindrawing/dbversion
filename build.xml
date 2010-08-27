@@ -4,7 +4,6 @@
 
     <path id="class.path">
       <pathelement location="/home/mwalker/.m2/repository/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar" />
-      <pathelement location="/home/mwalker/.m2/repository/commons-io/commons-io/1.4/commons-io-1.4.jar" />
     </path>
 
     <taskdef name="dbVersionStatus"
@@ -12,6 +11,9 @@
 
     <taskdef name="dbVersionInit"
              classname="com.napkindrawing.dbversion.task.DbVersionInit"/>
+
+    <taskdef name="dbVersionUpgrade"
+             classname="com.napkindrawing.dbversion.task.DbVersionUpgrade"/>
     
     <taskdef name="dbVersionInfo"
              classname="com.napkindrawing.dbversion.task.DbVersionInfo" />
@@ -21,6 +23,7 @@
                          url="jdbc:mysql://localhost/foo"
                          userid="root"
                          password="toor"
+                         profileNames="restaurant,hospital"
                          classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
         </dbVersionStatus>
@@ -41,20 +44,21 @@
                          url="jdbc:mysql://localhost/foo"
                          userid="root"
                          password="toor"
+                         forceInit="true"
                          classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
         </dbVersionInit>
     </target>
     
     <target name="upgrade">
-        <dbVersionInit driver="com.mysql.jdbc.Driver"
+        <dbVersionUpgrade driver="com.mysql.jdbc.Driver"
                          url="jdbc:mysql://localhost/foo"
                          userid="root"
                          password="toor"
-                         profiles="restaurant"
+                         profileNames="restaurant,hospital"
                          classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
-        </dbVersionInit>
+        </dbVersionUpgrade>
     </target>
 
 </project>

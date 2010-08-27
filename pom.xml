@@ -34,6 +34,8 @@
     <version-ant>1.8.1</version-ant>
     <version-junit>4.8.1</version-junit>
     <version-commons-io>1.4</version-commons-io>
+    <version-freemarker>2.3.16</version-freemarker>
+    <version-json-lib>2.3</version-json-lib>
     
     <!-- Plugin Versions -->
     <version-plugin-compiler>2.0.2</version-plugin-compiler>
@@ -47,6 +49,16 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${version-commons-io}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.json-lib</groupId>
+      <artifactId>json-lib</artifactId>
+      <version>${version-json-lib}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+      <version>${version-freemarker}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.ant</groupId>

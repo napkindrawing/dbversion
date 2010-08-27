@@ -1,6 +1,5 @@
 package com.napkindrawing.dbversion.task;
 
-import org.apache.tools.ant.BuildException;
 
 import com.napkindrawing.dbversion.Profile;
 
@@ -11,7 +10,7 @@ public class DbVersionInfo extends DbVersionCommand {
     }
     
     @Override
-    public void execute() throws BuildException {
+    public void execute() {
         super.execute();
         System.out.println("info! profile count " + getProfiles().size());
         for(Profile profile : getProfiles()) {

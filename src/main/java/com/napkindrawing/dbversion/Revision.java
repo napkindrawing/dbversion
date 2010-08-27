@@ -1,19 +1,24 @@
 package com.napkindrawing.dbversion;
 
-public class Revision {
+public class Revision implements Comparable<Revision> {
     
-    private String version;
+    private Version version;
     private String name = "";
-    private String upgradeScript;
+    private String upgradeScriptTemplate;
+    private String upgradeScriptTemplateChecksum;
+
+    public Revision() {
+        
+    }
     
-    public Revision(String version) {
+    public Revision(Version version) {
         this.version = version;
     }
     
-    public String getVersion() {
+    public Version getVersion() {
         return version;
     }
-    public void setVersion(String version) {
+    public void setVersion(Version version) {
         this.version = version;
     }
     
@@ -24,11 +29,25 @@ public class Revision {
         this.name = name;
     }
     
-    public String getUpgradeScript() {
-        return upgradeScript;
+    public String getUpgradeScriptTemplate() {
+        return upgradeScriptTemplate;
     }
-    public void setUpgradeScript(String upgradeScript) {
-        this.upgradeScript = upgradeScript;
+    public void setUpgradeScriptTemplate(String upgradeScriptTemplate) {
+        this.upgradeScriptTemplate = upgradeScriptTemplate;
+    }
+
+    public String getUpgradeScriptTemplateChecksum() {
+        return upgradeScriptTemplateChecksum;
+    }
+
+    public void setUpgradeScriptTemplateChecksum(
+            String upgradeScriptTemplateChecksum) {
+        this.upgradeScriptTemplateChecksum = upgradeScriptTemplateChecksum;
+    }
+
+    @Override
+    public int compareTo(Revision o) {
+        return version.compareTo(o.getVersion());
     }
     
 }
