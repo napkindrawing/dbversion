@@ -56,6 +56,7 @@
                          userid="root"
                          password="toor"
                          profileNames="restaurant,hospital"
+                         templateData='{"restaurantName":"JSON WOOOO"}'
                          delimiterType="row"
                          classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />

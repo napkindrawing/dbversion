@@ -7,9 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import name.fraser.neil.plaintext.diff_match_patch;
+import name.fraser.neil.plaintext.diff_match_patch.Diff;
+import name.fraser.neil.plaintext.diff_match_patch.Operation;
+import net.sf.json.JSON;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.input.CharSequenceReader;
@@ -26,13 +33,20 @@ import freemarker.template.Template;
 
 public class DbVersionUpgrade extends DbVersionProfileCommand {
     
+    public String templateData;
+    
+    protected JSON parsedTemplateData;
+    
     public DbVersionUpgrade() {
         super();
     }
     
     @Override
     public void execute() throws BuildException {
+        
         super.execute();
+        
+        parseTemplateData();
         
         System.out.printf("Upgrading database to latest version: %s\n", getUrl());
         
@@ -58,20 +72,63 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             log("Profile needs upgrade");
             log("Installed: " + maxInstalledVersion,Project.MSG_VERBOSE);
             log("Available: " + maxVersion,Project.MSG_VERBOSE);
+            
+            verifyPriorInstalledRevisions(profile, maxInstalledVersion);
+            
             performUpgrade(profile, maxInstalledVersion);
         
         } else if(maxInstalledVersion.compareTo(maxVersion) == 0) {
         
             log("Profile is up-to-date  (Version "+maxVersion+")");
+            
+            verifyPriorInstalledRevisions(profile, maxVersion);
         
         } else if(maxInstalledVersion.compareTo(maxVersion) > 0) {
         
             throw new BuildException("Installed version is greater than max local version",getLocation());
         
         }
-        
     }
- 
+    
+    protected Map<Profile,Map<Version,String>> compiledTemplates = new HashMap<Profile,Map<Version,String>>();
+    
+    protected Configuration _fmConfig = new Configuration(); 
+    
+    protected String getCompiledTemplate(Profile profile, Revision revision) {
+
+        if(compiledTemplates.containsKey(profile) && compiledTemplates.get(profile).containsKey(revision.getVersion())) {
+            return compiledTemplates.get(profile).get(revision.getVersion());
+        }
+        
+        CharSequenceReader templateReader = new CharSequenceReader(revision.getUpgradeScriptTemplate());
+        
+        String compiledTemplate = null;
+        
+        try {
+            Template fmTemplate = new Template(revision.getName(), templateReader, _fmConfig);
+            StringWriter templateWriter = new StringWriter();
+            fmTemplate.process(parsedTemplateData, templateWriter);
+            compiledTemplate = templateWriter.toString();
+        } catch (Exception e) {
+            throw new BuildException(e, getLocation());
+        }
+        
+        if(!compiledTemplates.containsKey(profile)) {
+            compiledTemplates.put(profile, new HashMap<Version,String>());
+        }
+        compiledTemplates.get(profile).put(revision.getVersion(), compiledTemplate);
+
+        return compiledTemplate;
+    }
+    
+    protected void parseTemplateData() {
+        parsedTemplateData = JSONSerializer.toJSON(templateData);
+    }
+    
+    public void setTemplateData(String templateData) {
+        this.templateData = templateData;
+    }
+
     /**
      * 
      * @param profile
@@ -79,8 +136,6 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
      */
     public void performUpgrade(Profile profile, Version from) {
         log("Upgrading profile " + profile.getName());
-        
-        verifySchemaMatch(profile, from);
         
         try {
             for(Revision revision : profile.getRevisions()) {
@@ -95,12 +150,42 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         
     }
     
-    private void verifySchemaMatch(Profile profile, Version from) {
+    private void verifyPriorInstalledRevisions(Profile profile, Version upTo) {
+        log("Verifying prior installed revisions up to " + upTo);
+        for(Revision rev : profile.getRevisions()) {
+            if(rev.getVersion().compareTo(upTo) <= 0) {
+                
+                log("Verifying installed revision " + rev.getVersion());
+                
+                InstalledRevision installedRev = profile.getInstalledRevision(rev.getVersion());
+                if(!rev.getUpgradeScriptTemplateChecksum().equals(installedRev.getUpgradeScriptTemplateChecksum())) {
+                    logDiffs("Installed Template", "Local Template", installedRev.getUpgradeScriptTemplate(), rev.getUpgradeScriptTemplate());
+                    throw new BuildException("Prior installed revision " + rev.getVersion() + " has different template checksum!", getLocation());
+                }
+                
+                String compiledTmpl = getCompiledTemplate(profile, rev);
+                String compiledTmplCksum = DigestUtils.md5Hex(compiledTmpl);
+                
+                if(!installedRev.getUpgradeScriptCompiledChecksum().equals(compiledTmplCksum)) {
+                    logDiffs("Installed Compiled Template", "Local Compiled Template", installedRev.getUpgradeScriptCompiled(), compiledTmpl);
+                    throw new BuildException("Prior installed revision " + rev.getVersion() + " compiled template differs from local!", getLocation());
+                }
+                
+            }
+        }
+        verifySchemaMatch(profile);
+    }
+
+    private void verifySchemaMatch(Profile profile) {
+        
+        Version from = getMaxInstalledVersion(profile.getName());
         
         if(from == Version.NONE) {
             log("Not verifying schema for first upgrade script",Project.MSG_DEBUG);
             return;
         }
+        
+        log("Verifying last revision ("+from+") saved schema matches current schema");
         
         InstalledRevision installedRev = profile.getInstalledRevision(from);
         
@@ -115,34 +200,58 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         String priorCksum = installedRev.getPostUpgradeSchemaDumpChecksum();
         
         if(!priorCksum.equals(schemaDumpCksum)) {
-            log("Prior Schema ("+priorCksum+"):\n\n"+installedRev.getPostUpgradeSchemaDump(), Project.MSG_ERR);
-            log("Current Schema ("+schemaDumpCksum+"):\n\n"+schemaDumpStr, Project.MSG_ERR);
+            logDiffs("Prior Schema", "Current Schema", installedRev.getPostUpgradeSchemaDump(), schemaDumpStr);
             throw new BuildException("Prior upgrade schema dump doesn't match existing schema!", getLocation());
         }
         
+    }
+    
+    protected void logDiffs(String title1, String title2, String text1, String text2) {
+
+        diff_match_patch dmp = new diff_match_patch();
+        LinkedList<Diff> diffs = dmp.diff_main(text1, text2);
+
+        log("================================================================================");  
+        log(""+title1+":");
+        log("--------------------------------------------------------------------------------");
+        log(text1);
+        log("================================================================================");  
+
+        log("================================================================================");  
+        log(""+title2+":");
+        log("--------------------------------------------------------------------------------");
+        log(text2);
+        log("================================================================================");  
+
+        log("================================================================================");  
+        log("Diffs:");
+        
+        for(Diff diff : diffs) {
+            String headerText = "";
+            switch(diff.operation) {
+                case INSERT:
+                    headerText = "Unexpected Text";
+                    break;
+                case DELETE:
+                    headerText = "Missing Text";
+                    break;
+                case EQUAL:
+                    continue;
+            }
+            log("================================================================================");  
+            log(headerText);
+            log("--------------------------------------------------------------------------------");
+            log(diff.text);
+            log("================================================================================");
+        }
     }
 
     public void applyRevision(Profile profile, Revision revision) {
         log("Applying revision " + revision.getVersion());
         log("Upgrade Script Template:\n\n" + revision.getUpgradeScriptTemplate() + "\n\n");
         
-        CharSequenceReader templateReader = new CharSequenceReader(revision.getUpgradeScriptTemplate());
+        String compiledTemplate = getCompiledTemplate(profile, revision);
         
-        String compiledTemplate = null;
-        
-        Map<String,Object> data = new HashMap<String,Object>();
-        data.put("restaurantName", "World!");
-        
-        Configuration fmConfig = new Configuration();
-        try {
-            Template fmTemplate = new Template(revision.getName(), templateReader, fmConfig);
-            StringWriter templateWriter = new StringWriter();
-            fmTemplate.process(data, templateWriter);
-            compiledTemplate = templateWriter.toString();
-        } catch (Exception e) {
-            throw new BuildException(e, getLocation());
-        }
-
         log("Upgrade Script Compiled:\n\n" + compiledTemplate + "\n\n");
         
         try {
@@ -158,6 +267,16 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             throw new BuildException(e,getLocation());
         }
         
+        InstalledRevision installedRevision = new InstalledRevision(profile, revision);
+        installedRevision.setUpgradeScriptCompiled(compiledTemplate);
+        installedRevision.assignUpgradeScriptCompiledChecksum();
+        installedRevision.setUpgradeScriptData(templateData);
+        
+        logRevision(installedRevision);
+        
+    }
+    
+    protected void logRevision(InstalledRevision installedRevision) {
         log("Logging upgrade revision", Project.MSG_VERBOSE);
         PreparedStatement logStmt = null;
         try {
@@ -168,15 +287,16 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             
             String logSql = loadResourceFile("com/napkindrawing/dbversion/logRevision.sql");
             logStmt = getConnection().prepareStatement(logSql);
-            logStmt.setString(1, profile.getName());
-            logStmt.setString(2, revision.getVersion().getId());
-            logStmt.setString(3, revision.getName());
-            logStmt.setString(4, revision.getUpgradeScriptTemplate());
-            logStmt.setString(5, revision.getUpgradeScriptTemplateChecksum());
-            logStmt.setString(6, compiledTemplate);
-            logStmt.setString(7, DigestUtils.md5Hex(compiledTemplate));
-            logStmt.setString(8, schemaDumpStr);
-            logStmt.setString(9, DigestUtils.md5Hex(schemaDumpStr));
+            logStmt.setString(1, installedRevision.getProfileName());
+            logStmt.setString(2, installedRevision.getVersion().getId());
+            logStmt.setString(3, installedRevision.getName());
+            logStmt.setString(4, installedRevision.getUpgradeScriptTemplate());
+            logStmt.setString(5, installedRevision.getUpgradeScriptTemplateChecksum());
+            logStmt.setString(6, installedRevision.getUpgradeScriptData());
+            logStmt.setString(7, installedRevision.getUpgradeScriptCompiled());
+            logStmt.setString(8, installedRevision.getUpgradeScriptCompiledChecksum());
+            logStmt.setString(9, schemaDumpStr);
+            logStmt.setString(10, DigestUtils.md5Hex(schemaDumpStr));
             
             logStmt.execute();
             
@@ -192,7 +312,6 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             } catch (SQLException e) {
             }
         }
-        
     }
 
     protected StringBuilder dumpSchema() {

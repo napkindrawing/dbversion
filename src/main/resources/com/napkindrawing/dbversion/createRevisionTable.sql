@@ -5,6 +5,7 @@ CREATE TABLE `__database_revision` (
  `upgrade_script_name` VARCHAR(250) NOT NULL ,
  `upgrade_script_template` MEDIUMTEXT NOT NULL ,
  `upgrade_script_template_checksum` VARCHAR(32) NOT NULL ,
+ `upgrade_script_data` MEDIUMTEXT NOT NULL ,
  `upgrade_script_compiled` MEDIUMTEXT NOT NULL ,
  `upgrade_script_compiled_checksum` VARCHAR(32) NOT NULL ,
  `post_upgrade_schema_dump` MEDIUMTEXT NOT NULL ,

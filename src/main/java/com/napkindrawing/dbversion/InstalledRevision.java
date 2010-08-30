@@ -3,10 +3,12 @@ package com.napkindrawing.dbversion;
 import java.sql.ResultSet;
 import java.util.Date;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class InstalledRevision extends Revision {
     
     private String profileName;
-    private String upgradeScriptName;
+    private String upgradeScriptData;
     private String upgradeScriptCompiledChecksum;
     private String upgradeScriptCompiled;
     private String postUpgradeSchemaDump;
@@ -28,27 +30,40 @@ public class InstalledRevision extends Revision {
             setProfileName(rs.getString("profile"));
             setVersion(new Version(rs.getString("version")));
             setUpgradeDate(rs.getDate("upgrade_date"));
-            setUpgradeScriptName(rs.getString("upgrade_script_name"));
+            setName(rs.getString("upgrade_script_name"));
+            setUpgradeScriptCompiled(rs.getString("upgrade_script_compiled"));
             setUpgradeScriptCompiledChecksum(rs.getString("upgrade_script_compiled_checksum"));
+            setUpgradeScriptData(rs.getString("upgrade_script_data"));
+            setUpgradeScriptTemplate(rs.getString("upgrade_script_template"));
             setUpgradeScriptTemplateChecksum(rs.getString("upgrade_script_template_checksum"));
+            setPostUpgradeSchemaDump(rs.getString("post_upgrade_schema_dump"));
             setPostUpgradeSchemaDumpChecksum(rs.getString("post_upgrade_schema_dump_checksum"));
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
     }
     
+    public InstalledRevision(Profile profile, Revision revision) {
+        setProfileName(profile.getName());
+        setVersion(revision.getVersion());
+        setName(revision.getName());
+        setUpgradeScriptTemplate(revision.getUpgradeScriptTemplate());
+        setUpgradeScriptTemplateChecksum(revision.getUpgradeScriptTemplateChecksum());
+    }
+
     public String getProfileName() {
         return profileName;
     }
     public void setProfileName(String profileName) {
         this.profileName = profileName;
     }
-    public String getUpgradeScriptName() {
-        return upgradeScriptName;
+
+    public String getUpgradeScriptData() {
+        return upgradeScriptData;
     }
 
-    public void setUpgradeScriptName(String upgradeScriptName) {
-        this.upgradeScriptName = upgradeScriptName;
+    public void setUpgradeScriptData(String upgradeScriptData) {
+        this.upgradeScriptData = upgradeScriptData;
     }
 
     public String getUpgradeScriptCompiledChecksum() {
@@ -84,6 +99,10 @@ public class InstalledRevision extends Revision {
 
     public void setUpgradeDate(Date upgradeDate) {
         this.upgradeDate = upgradeDate;
+    }
+
+    public void assignUpgradeScriptCompiledChecksum() {
+        upgradeScriptCompiledChecksum = DigestUtils.md5Hex(upgradeScriptCompiled);
     }
     
 }
