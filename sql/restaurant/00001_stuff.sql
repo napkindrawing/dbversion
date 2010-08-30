@@ -1,1 +1,2 @@
-insert into restaurant (name) values ('${restaurantName}');
+insert into restaurant (name) values ('${restaurantName}')
+;

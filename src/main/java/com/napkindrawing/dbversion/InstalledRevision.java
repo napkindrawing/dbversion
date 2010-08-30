@@ -5,6 +5,14 @@ import java.util.Date;
 
 public class InstalledRevision extends Revision {
     
+    private String profileName;
+    private String upgradeScriptName;
+    private String upgradeScriptCompiledChecksum;
+    private String upgradeScriptCompiled;
+    private String postUpgradeSchemaDump;
+    private String postUpgradeSchemaDumpChecksum;
+    private Date upgradeDate;
+    
     public InstalledRevision(Version version) {
         super(version);
     }
@@ -28,14 +36,6 @@ public class InstalledRevision extends Revision {
             throw new RuntimeException(e);
         }
     }
-    
-    private String profileName;
-    private String upgradeScriptName;
-    private String upgradeScriptCompiledChecksum;
-    private String upgradeScriptCompiled;
-    private String postUpgradeSchemaDump;
-    private String postUpgradeSchemaDumpChecksum;
-    private Date upgradeDate;
     
     public String getProfileName() {
         return profileName;

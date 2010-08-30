@@ -1,5 +1,7 @@
 package com.napkindrawing.dbversion.task;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,9 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.JDBCTask;
 import org.apache.tools.ant.taskdefs.Property;
+import org.apache.tools.ant.taskdefs.SQLExec;
 
 import com.napkindrawing.dbversion.InstalledRevision;
 import com.napkindrawing.dbversion.Profile;
@@ -25,7 +29,7 @@ import com.napkindrawing.dbversion.loader.RevisionLoader;
 import com.napkindrawing.dbversion.loader.RevisionsLoader;
 import com.napkindrawing.dbversion.loader.fs.FileSystemLoader;
 
-public abstract class DbVersionCommand extends JDBCTask {
+public abstract class DbVersionCommand extends SQLExec  {
     
     private List<Profile> profiles = new ArrayList<Profile>();
     private Properties config = new Properties();
@@ -76,6 +80,7 @@ public abstract class DbVersionCommand extends JDBCTask {
         
         setProfiles( profilesLoader.loadProfiles() );
         summarizeProfiles();
+        loadInstalledRevisions();
         
         if( checkInitTables && !canQueryRevisionTable()) {
             throw new BuildException("Database at " + getUrl() + " not initialized");
@@ -86,7 +91,8 @@ public abstract class DbVersionCommand extends JDBCTask {
     private Map<String, Version> maxVersionByProfile = new HashMap<String, Version>();
     
     public Version getMaxVersion(String profileName) {
-        return maxVersionByProfile.get(profileName);
+        Version v = maxVersionByProfile.get(profileName);
+        return v == null ? Version.NONE : v;
     }    
     
     private Map<String,Profile> profilesByName = new HashMap<String,Profile>();
@@ -115,13 +121,17 @@ public abstract class DbVersionCommand extends JDBCTask {
     private Map<String, Version> maxInstalledVersionByProfile = new HashMap<String, Version>();
     
     public Version getMaxInstalledVersion(String profileName) {
-        return maxInstalledVersionByProfile.get(profileName);
+        Version v = maxInstalledVersionByProfile.get(profileName);
+        return v == null ? Version.NONE : v;
     }
     
     protected void summarizeInstalledRevisions() {
         for(InstalledRevision i : installedRevisions) {
             String pn = i.getProfileName();
             Version v = i.getVersion();
+            
+            getProfileByName(pn).getInstalledRevisions().add(i);
+            
             if(!maxInstalledVersionByProfile.containsKey(pn)) {
                 maxInstalledVersionByProfile.put(pn, v);
             } else {
@@ -140,7 +150,7 @@ public abstract class DbVersionCommand extends JDBCTask {
         Statement stmt = null;
         
         try {
-            System.out.println("Querying Database: " + getUrl());
+            log("Querying Database: " + getUrl());
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM __database_revision");
             
@@ -150,16 +160,13 @@ public abstract class DbVersionCommand extends JDBCTask {
                 installedRevisions.add(new InstalledRevision(rs));
             }
             
-            System.out.println(installedRevisions.size() + " Revisions Read");
+            log(installedRevisions.size() + " Revisions Read");
             
         } catch(SQLException e) {
             throw new RuntimeException("Error querying database", e);
         } finally  {
             if (stmt != null) {
                 try {stmt.close();}catch (SQLException ignore) {}
-            }
-            if (conn != null) {
-                try {conn.close();}catch (SQLException ignore) {}
             }
         }
         
@@ -196,9 +203,6 @@ public abstract class DbVersionCommand extends JDBCTask {
             if (stmt != null) {
                 try {stmt.close();}catch (SQLException ignore) {}
             }
-            if (conn != null) {
-                try {conn.close();}catch (SQLException ignore) {}
-            }
         }
         return false;
     }
@@ -217,6 +221,41 @@ public abstract class DbVersionCommand extends JDBCTask {
 
     public void setLoaderSpecClass(Class<? extends LoaderSpec> loaderSpecClass) {
         this.loaderSpecClass = loaderSpecClass;
+    }
+    
+    protected String loadResourceFile(String path) {
+        InputStream createInputStream = getLoader().getResourceAsStream(path);
+        
+        if(createInputStream == null) {
+            throw new RuntimeException("Couldnt' load resource file: " + path);
+        }
+        
+        String contents;
+        
+        try {
+            contents = IOUtils.toString(createInputStream);
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
+        
+        return contents;
+    }
+    
+    protected void closeQuietly() {
+        try {
+            if (getStatement() != null) {
+                getStatement().close();
+            }
+        } catch (SQLException ex) {
+            // ignore
+        }
+        try {
+            if (getConnection() != null) {
+                getConnection().close();
+            }
+        } catch (SQLException ex) {
+            // ignore
+        }
     }
     
 }

@@ -20,11 +20,12 @@ public class FileSystemRevisionLoader extends FileSystemLoader implements Revisi
         
         if(revisionFile.getName().length() > 10) {
             // Strip out version prefix and ".sql" suffix
-            revision.setName(revisionFile.getName().substring(7,revisionFile.getName().length()-4));
+            revision.setName(revisionFile.getName().substring(6,revisionFile.getName().length()-4));
         }
         
         try {
             revision.setUpgradeScriptTemplate( FileUtils.readFileToString(revisionFile, "UTF-8"));
+            revision.assignUpgradeScriptTemplateChecksum();
         } catch (IOException e) {
             throw new RuntimeException("Error reading upgrade script", e);
         }

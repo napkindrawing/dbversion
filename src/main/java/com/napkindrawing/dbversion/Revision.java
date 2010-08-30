@@ -1,5 +1,7 @@
 package com.napkindrawing.dbversion;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class Revision implements Comparable<Revision> {
     
     private Version version;
@@ -48,6 +50,10 @@ public class Revision implements Comparable<Revision> {
     @Override
     public int compareTo(Revision o) {
         return version.compareTo(o.getVersion());
+    }
+
+    public void assignUpgradeScriptTemplateChecksum() {
+        upgradeScriptTemplateChecksum = DigestUtils.md5Hex(upgradeScriptTemplate);
     }
     
 }

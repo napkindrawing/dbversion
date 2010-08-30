@@ -34,19 +34,7 @@ public class DbVersionInit extends DbVersionCommand {
         Statement createStmt = null;
         Statement dropStmt = null;
         
-        InputStream createInputStream = getLoader().getResourceAsStream("com/napkindrawing/dbversion/createRevisionTable.sql");
-        
-        if(createInputStream == null) {
-            throw new RuntimeException("Couldnt' load createRevisionTable.sql");
-        }
-        
-        String createSql;
-        
-        try {
-            createSql = IOUtils.toString(createInputStream);
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
-        }
+        String createSql = loadResourceFile("com/napkindrawing/dbversion/createRevisionTable.sql");
         
         try {
             System.out.println("Initializing Database: " + getUrl());
