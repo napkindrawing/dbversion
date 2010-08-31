@@ -1,1 +1,11 @@
-Hello, World!
+dbversion - Database versioning and deployment/migration management
+
+To Install:
+
+    1. Copy files in lib/ to your ant's lib/ directory or add to your $CLASSPATH.
+
+    2. Run "mvn package" and copy target/dbversion-1.0.jar to your ant's lib/
+       directory or add to your $CLASSPATH.
+
+See build.xml for an example build file.
+
