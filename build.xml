@@ -52,13 +52,13 @@
     
     <target name="upgrade">
         <dbVersionUpgrade driver="com.mysql.jdbc.Driver"
-                           url="jdbc:mysql://localhost/foo"
-                           userid="root"
-                           password="toor"
-                           profileNames="restaurant,hospital"
-                           templateData='{"restaurantName":"JSON WOOOO"}'
-                           delimiterType="row"
-                           classpathref="class.path">
+                          url="jdbc:mysql://localhost/foo"
+                          userid="root"
+                          password="toor"
+                          profileNames="restaurant,hospital"
+                          templateData='{"restaurantName":"JSON WOOOO"}'
+                          delimiterType="row"
+                          classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
         </dbVersionUpgrade>
     </target>
