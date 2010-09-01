@@ -15,6 +15,7 @@
  */
 package com.napkindrawing.dbversion.task;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.PreparedStatement;
@@ -34,6 +35,8 @@ import net.sf.json.JSON;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -49,6 +52,8 @@ import freemarker.template.Template;
 public class DbVersionUpgrade extends DbVersionProfileCommand {
     
     public String templateData;
+    
+    public File templateDataFile;
     
     protected JSON parsedTemplateData;
     
@@ -137,11 +142,24 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     }
     
     protected void parseTemplateData() {
+        
+        if(templateDataFile != null) {
+            try {
+                templateData = FileUtils.readFileToString(templateDataFile, "UTF-8");
+            } catch (IOException e) {
+                throw new BuildException(e, getLocation());
+            }
+        }
+        
         parsedTemplateData = JSONSerializer.toJSON(templateData);
     }
     
     public void setTemplateData(String templateData) {
         this.templateData = templateData;
+    }
+
+    public void setTemplateDataFile(File templateDataFile) {
+        this.templateDataFile = templateDataFile;
     }
 
     /**
@@ -226,6 +244,8 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         diff_match_patch dmp = new diff_match_patch();
         LinkedList<Diff> diffs = dmp.diff_main(text1, text2);
 
+        dmp.diff_cleanupSemantic(diffs);
+        
         log("================================================================================");  
         log(""+title1+":");
         log("--------------------------------------------------------------------------------");

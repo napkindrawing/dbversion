@@ -73,7 +73,6 @@ public class DbVersionInit extends DbVersionCommand {
                 try {conn.close();}catch (SQLException ignore) {}
             }
         }
-        System.out.println(" ... done!");
     }
 
     public void setForceInit(Boolean forceInit) {

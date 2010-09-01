@@ -29,6 +29,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.JDBCTask;
 import org.apache.tools.ant.taskdefs.Property;
 import org.apache.tools.ant.taskdefs.SQLExec;
@@ -95,12 +96,13 @@ public abstract class DbVersionCommand extends SQLExec  {
         
         setProfiles( profilesLoader.loadProfiles() );
         summarizeProfiles();
-        loadInstalledRevisions();
         
         if( checkInitTables && !canQueryRevisionTable()) {
             throw new BuildException("Database at " + getUrl() + " not initialized");
         }
-        
+        if(checkInitTables) {
+            loadInstalledRevisions();
+        }
     }
     
     private Map<String, Version> maxVersionByProfile = new HashMap<String, Version>();
@@ -175,7 +177,7 @@ public abstract class DbVersionCommand extends SQLExec  {
                 installedRevisions.add(new InstalledRevision(rs));
             }
             
-            log(installedRevisions.size() + " Revisions Read");
+            log(installedRevisions.size() + " Revisions Read", Project.MSG_DEBUG);
             
         } catch(SQLException e) {
             throw new RuntimeException("Error querying database", e);
