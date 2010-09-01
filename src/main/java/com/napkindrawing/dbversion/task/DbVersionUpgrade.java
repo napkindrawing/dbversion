@@ -16,30 +16,24 @@
 package com.napkindrawing.dbversion.task;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
-import name.fraser.neil.plaintext.diff_match_patch.Operation;
-import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -73,8 +67,13 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         
         System.out.printf("Upgrading database to latest version: %s\n", getUrl());
         
-        for(String profileName : getProfileNamesArray()) {
-            execute(getProfileByName(profileName));
+        try {
+            for(String profileName : getProfileNamesArray()) {
+                log("Upgrading profile: " + profileName);
+                execute(getProfileByName(profileName));
+            }
+        } finally {
+            closeQuietly();
         }
         
     }
@@ -146,11 +145,18 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     
     protected void parseTemplateData() {
         
+        if(getConnection() != null) {
+            try {
+                parsedTemplateData.put("db.schema", getConnection().getCatalog());
+            } catch (SQLException e) {
+                throw new BuildException("Couldn't extract catalog from connection", getLocation());
+            }
+        }
+        
         if(templateDataFiles != null && !templateDataFiles.isEmpty()) {
             try {
                 String[] files = templateDataFiles.split("\\s*,\\s*");
                 log("Totally parsing " + files.length + " files!!!",Project.MSG_INFO);
-                parsedTemplateData = new JSONObject();
                 for(String file : files) {
                     String fileContents = FileUtils.readFileToString(new File(file));
                     parsedTemplateData.putAll((JSONObject) JSONSerializer.toJSON(fileContents));
@@ -158,8 +164,10 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             } catch (Exception e) {
                 throw new BuildException(e, getLocation());
             }
-        } else if(templateData != null && !templateData.isEmpty()){
-            parsedTemplateData = (JSONObject) JSONSerializer.toJSON(templateData);            
+        }
+        
+        if(templateData != null && !templateData.isEmpty()){
+            parsedTemplateData.putAll((JSONObject) JSONSerializer.toJSON(templateData));            
         }
         
     }
@@ -171,6 +179,10 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     public void setTemplateDataFiles(String templateDataFiles) {
         this.templateDataFiles = templateDataFiles;
     }
+    
+    public String getParsedTemplateData() {
+        return parsedTemplateData.toString();
+    }
 
     /**
      * 
@@ -180,16 +192,12 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     public void performUpgrade(Profile profile, Version from) {
         log("Upgrading profile " + profile.getName());
         
-        try {
             for(Revision revision : profile.getRevisions()) {
                 if(from.compareTo(revision.getVersion()) < 0 ) {
                     applyRevision(profile, revision);
                 }
             }
-        } finally {
-            closeQuietly();
-        }
-        log("Upgrade complete");
+        log("Upgrade complete for profile " + profile.getName());
         
     }
     
@@ -293,11 +301,11 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
 
     public void applyRevision(Profile profile, Revision revision) {
         log("Applying revision " + revision.getVersion());
-        log("Upgrade Script Template:\n\n" + revision.getUpgradeScriptTemplate() + "\n\n");
+        log("Upgrade Script Template:\n\n" + revision.getUpgradeScriptTemplate() + "\n\n", Project.MSG_DEBUG);
         
         String compiledTemplate = getCompiledTemplate(profile, revision);
         
-        log("Upgrade Script Compiled:\n\n" + compiledTemplate + "\n\n");
+        log("Upgrade Script Compiled:\n\n" + compiledTemplate + "\n\n", Project.MSG_DEBUG);
         
         try {
             if (getConnection() == null) {
@@ -305,7 +313,7 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             }
             runStatements(new CharSequenceReader(compiledTemplate), System.out);
             if (!isAutocommit()) {
-                log("Committing transaction", Project.MSG_VERBOSE);
+                log("Committing transaction", Project.MSG_DEBUG);
                 getConnection().commit();
             }
         } catch(Exception e) {
@@ -315,7 +323,7 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         InstalledRevision installedRevision = new InstalledRevision(profile, revision);
         installedRevision.setUpgradeScriptCompiled(compiledTemplate);
         installedRevision.assignUpgradeScriptCompiledChecksum();
-        installedRevision.setUpgradeScriptData(templateData);
+        installedRevision.setUpgradeScriptData(getParsedTemplateData());
         
         logRevision(installedRevision);
         

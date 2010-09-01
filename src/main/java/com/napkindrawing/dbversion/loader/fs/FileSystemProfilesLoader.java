@@ -31,7 +31,7 @@ public class FileSystemProfilesLoader extends FileSystemLoader implements Profil
     public List<Profile> loadProfiles() {
         
         if(!getProfilesDir().isDirectory() || !getProfilesDir().canRead()) {
-            throw new RuntimeException("Profiles path must be readable directory");
+            throw new RuntimeException("Profiles path <"+getProfilesDir()+"> must be readable directory");
         }
         
         List<Profile> profiles = new ArrayList<Profile>();
@@ -43,7 +43,7 @@ public class FileSystemProfilesLoader extends FileSystemLoader implements Profil
                 }
                 // TODO: load config.properties
                 // config = ResourceUtils.
-            } else if(profileDirEntry.isDirectory()) {
+            } else if(profileDirEntry.isDirectory() && !profileDirEntry.getName().startsWith(".")) {
                 profiles.add(profileLoader.loadProfile(profileDirEntry.getName()));
             }
         }

@@ -115,6 +115,9 @@ public abstract class DbVersionCommand extends SQLExec  {
     private Map<String,Profile> profilesByName = new HashMap<String,Profile>();
     
     public Profile getProfileByName(String profileName) {
+        if(!profilesByName.containsKey(profileName)) {
+            throw new BuildException("No profile named '"+profileName+"'");
+        }
         return profilesByName.get(profileName);
     }
     
@@ -233,6 +236,7 @@ public abstract class DbVersionCommand extends SQLExec  {
     }
     
     public void addConfiguredLoaderProperty(Property property) {
+        log("Adding loaderProperty: " + property.getName() +" => " + property.getValue(), Project.MSG_DEBUG);
         config.put(property.getName(), property.getValue());
     }
 
