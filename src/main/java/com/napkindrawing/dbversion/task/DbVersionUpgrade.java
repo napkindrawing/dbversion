@@ -22,8 +22,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -32,6 +34,7 @@ import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 import name.fraser.neil.plaintext.diff_match_patch.Operation;
 import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -53,9 +56,9 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     
     public String templateData;
     
-    public File templateDataFile;
+    public String templateDataFiles;
     
-    protected JSON parsedTemplateData;
+    protected JSONObject parsedTemplateData = new JSONObject();
     
     public DbVersionUpgrade() {
         super();
@@ -143,23 +146,31 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     
     protected void parseTemplateData() {
         
-        if(templateDataFile != null) {
+        if(templateDataFiles != null && !templateDataFiles.isEmpty()) {
             try {
-                templateData = FileUtils.readFileToString(templateDataFile, "UTF-8");
-            } catch (IOException e) {
+                String[] files = templateDataFiles.split("\\s*,\\s*");
+                log("Totally parsing " + files.length + " files!!!",Project.MSG_INFO);
+                parsedTemplateData = new JSONObject();
+                for(String file : files) {
+                    String fileContents = FileUtils.readFileToString(new File(file));
+                    parsedTemplateData.putAll((JSONObject) JSONSerializer.toJSON(fileContents));
+                }
+                // templateData = FileUtils.readFileToString(templateDataFile, "UTF-8");
+            } catch (Exception e) {
                 throw new BuildException(e, getLocation());
             }
+        } else if(templateData != null && !templateData.isEmpty()){
+            parsedTemplateData = (JSONObject) JSONSerializer.toJSON(templateData);            
         }
         
-        parsedTemplateData = JSONSerializer.toJSON(templateData);
     }
     
     public void setTemplateData(String templateData) {
         this.templateData = templateData;
     }
 
-    public void setTemplateDataFile(File templateDataFile) {
-        this.templateDataFile = templateDataFile;
+    public void setTemplateDataFiles(String templateDataFiles) {
+        this.templateDataFiles = templateDataFiles;
     }
 
     /**
