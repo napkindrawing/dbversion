@@ -155,7 +155,6 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
                     String fileContents = FileUtils.readFileToString(new File(file));
                     parsedTemplateData.putAll((JSONObject) JSONSerializer.toJSON(fileContents));
                 }
-                // templateData = FileUtils.readFileToString(templateDataFile, "UTF-8");
             } catch (Exception e) {
                 throw new BuildException(e, getLocation());
             }
