@@ -17,8 +17,14 @@ package com.napkindrawing.dbversion.loader.fs;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.apache.tools.ant.BuildException;
+
+import sun.security.action.GetLongAction;
 
 import com.napkindrawing.dbversion.Revision;
 import com.napkindrawing.dbversion.Version;
@@ -42,10 +48,15 @@ public class FileSystemRevisionsLoader extends FileSystemLoader implements Revis
                 return name.endsWith(".sql");
             }
         };
+        List<String> versions = new ArrayList<String>();
         for(File revFile : profileDir.listFiles(sqlFileFilter)) {
             String version = revFile.getName().substring(0, 5);
+            if(versions.contains(version)) {
+                throw new BuildException("Multiple resources detected for version " + version + " of profile " + profileName);
+            }
             Revision revision = revisionLoader.loadRevision(profileName, new Version(version));
             revisions.add(revision);
+            versions.add(version);
         }
         return revisions;
     }
