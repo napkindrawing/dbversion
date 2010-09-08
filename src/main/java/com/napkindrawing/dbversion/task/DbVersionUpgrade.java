@@ -68,6 +68,7 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         System.out.printf("Upgrading database to latest version: %s\n", getUrl());
         
         try {
+            verifySchemaMatch();
             for(String profileName : getProfileNamesArray()) {
                 log("Upgrading profile: " + profileName);
                 execute(getProfileByName(profileName));
@@ -228,24 +229,17 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
                 
             }
         }
-        verifySchemaMatch(profile);
     }
 
-    private void verifySchemaMatch(Profile profile) {
+    private void verifySchemaMatch() {
+
+        log("Verifying schema", Project.MSG_DEBUG);
         
-        Version from = getMaxInstalledVersion(profile.getName());
-        
-        if(from == Version.NONE) {
-            log("Not verifying schema for first upgrade script",Project.MSG_DEBUG);
-            return;
-        }
-        
-        log("Verifying last revision ("+from+") saved schema matches current schema");
-        
-        InstalledRevision installedRev = profile.getInstalledRevision(from);
+        InstalledRevision installedRev = getLastInstalledRevision();
         
         if(installedRev == null) {
-            throw new BuildException("Asked to upgrade from version " + from + " but no installed revision w/that version found", getLocation());
+            log("No installed revisions, not verifying schema",Project.MSG_DEBUG);
+            return;
         }
         
         StringBuilder schemaDump = dumpSchema();
@@ -354,6 +348,7 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
             logStmt.setString(8, installedRevision.getUpgradeScriptCompiledChecksum());
             logStmt.setString(9, schemaDumpStr);
             logStmt.setString(10, DigestUtils.md5Hex(schemaDumpStr));
+            logStmt.setLong(11,System.currentTimeMillis());
             
             logStmt.execute();
             

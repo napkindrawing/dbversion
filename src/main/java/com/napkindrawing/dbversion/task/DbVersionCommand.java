@@ -186,6 +186,11 @@ public abstract class DbVersionCommand extends SQLExec  {
             if(!installedProfileNames.contains(pn)) {
                 installedProfileNames.add(pn);
             }
+
+            if(lastInstalledRevision == null ||
+                    lastInstalledRevision.getUpgradeDate().compareTo(i.getUpgradeDate()) < 0) {
+                lastInstalledRevision = i;
+            }
             
             if(!maxInstalledVersionByProfile.containsKey(pn)) {
                 maxInstalledVersionByProfile.put(pn, v);
@@ -195,6 +200,15 @@ public abstract class DbVersionCommand extends SQLExec  {
                 }
             }
         }
+    }
+
+    protected InstalledRevision lastInstalledRevision = null;
+
+    public InstalledRevision getLastInstalledRevision() {
+        if(installedRevisions == null) {
+            loadInstalledRevisions();
+        }
+        return lastInstalledRevision;
     }
     
     protected void loadInstalledRevisions() {

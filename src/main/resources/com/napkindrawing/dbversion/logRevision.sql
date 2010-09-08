@@ -8,5 +8,6 @@ INSERT INTO __database_revision (
    `upgrade_script_compiled` ,
    `upgrade_script_compiled_checksum`  ,
    `post_upgrade_schema_dump` ,
-   `post_upgrade_schema_dump_checksum` 
-) VALUES (?,?,?,?,?,?,?,?,?,?)
+   `post_upgrade_schema_dump_checksum` ,
+   `upgrade_date`
+) VALUES (?,?,?,?,?,?,?,?,?,?,?)

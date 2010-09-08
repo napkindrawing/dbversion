@@ -16,7 +16,6 @@
 package com.napkindrawing.dbversion;
 
 import java.sql.ResultSet;
-import java.util.Date;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -28,7 +27,7 @@ public class InstalledRevision extends Revision {
     private String upgradeScriptCompiled;
     private String postUpgradeSchemaDump;
     private String postUpgradeSchemaDumpChecksum;
-    private Date upgradeDate;
+    private Long upgradeDate;
     
     public InstalledRevision(Version version) {
         super(version);
@@ -44,7 +43,7 @@ public class InstalledRevision extends Revision {
         try {
             setProfileName(rs.getString("profile"));
             setVersion(new Version(rs.getString("version")));
-            setUpgradeDate(rs.getDate("upgrade_date"));
+            setUpgradeDate(rs.getLong("upgrade_date"));
             setName(rs.getString("upgrade_script_name"));
             setUpgradeScriptCompiled(rs.getString("upgrade_script_compiled"));
             setUpgradeScriptCompiledChecksum(rs.getString("upgrade_script_compiled_checksum"));
@@ -108,11 +107,11 @@ public class InstalledRevision extends Revision {
         this.postUpgradeSchemaDumpChecksum = postUpgradeSchemaDumpChecksum;
     }
 
-    public Date getUpgradeDate() {
+    public Long getUpgradeDate() {
         return upgradeDate;
     }
 
-    public void setUpgradeDate(Date upgradeDate) {
+    public void setUpgradeDate(Long upgradeDate) {
         this.upgradeDate = upgradeDate;
     }
 
