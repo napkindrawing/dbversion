@@ -30,12 +30,17 @@ public class DbVersionStatus extends DbVersionCommand {
             
             Version maxInstalled = getMaxInstalledVersion(profileName);
             Version max = getMaxVersion(profileName);
+
+            String msg = maxInstalled.equals(max)
+                       ? ""
+                       : "   <=== OUT OF DATE";
             
             System.out.printf(
-                "Installed/Available: %s/%s  Profile: %s\n",
+                "Installed/Available: %s/%s  Profile: %s%s\n",
                 maxInstalled,
                 max,
-                profileName
+                profileName,
+                msg
             );
         }
         

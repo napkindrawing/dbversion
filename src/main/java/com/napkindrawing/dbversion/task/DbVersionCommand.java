@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
@@ -64,10 +66,30 @@ public abstract class DbVersionCommand extends SQLExec  {
     public DbVersionCommand() {
         super();
     }
+
+    private Map<Integer,String> _urlHostSchema = new HashMap<Integer,String>();
+
+    public String getHostSchema() {
+        if(getUrl() == null || getUrl().isEmpty()) {
+            return null;
+        }
+        if(_urlHostSchema.containsKey(getUrl().hashCode())) {
+            return _urlHostSchema.get(getUrl().hashCode());
+        }
+        Pattern p = Pattern.compile("^jdbc:\\w+://([\\w\\.\\-\\_]+/[\\w\\.\\-\\_]+).*$");
+        Matcher m = p.matcher(getUrl());
+        if(!m.matches()) {
+            throw new BuildException("Couldn't extract hostname and schema from jdbc url: " + getUrl());
+        }
+        String hostSchema = m.group(1);
+        _urlHostSchema.put(getUrl().hashCode(), hostSchema);
+        return hostSchema;
+    }
     
     protected String prependLogPrefix(String msg) {
-        if(getUrl() != null && !getUrl().isEmpty()) {
-            String prefix = "[" + getUrl() + "] ";
+        String hostSchema = getHostSchema();
+        if(hostSchema != null && !hostSchema.isEmpty()) {
+            String prefix = "[" + hostSchema + "] ";
             if(msg.startsWith(prefix)) {
                 return msg;
             }
