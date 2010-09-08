@@ -19,23 +19,23 @@ import com.napkindrawing.dbversion.Version;
 
 
 
-public class DbVersionStatus extends DbVersionProfileCommand {
+public class DbVersionStatus extends DbVersionCommand {
     
     @Override
     public void execute() {
         
         super.execute();
         
-        for(String profileName : getProfileNamesArray()) {
-            System.out.printf("Profile: %s\n", profileName);
+        for(String profileName : getInstalledProfileNames()) {
             
             Version maxInstalled = getMaxInstalledVersion(profileName);
             Version max = getMaxVersion(profileName);
             
             System.out.printf(
-                "    Installed / Available: %s/%s\n",
+                "Installed/Available: %s/%s  Profile: %s\n",
                 maxInstalled,
-                max
+                max,
+                profileName
             );
         }
         

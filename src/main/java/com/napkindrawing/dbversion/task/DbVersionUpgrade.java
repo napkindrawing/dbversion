@@ -165,7 +165,6 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
                 throw new BuildException(e, getLocation());
             }
         }
-        
         if(templateData != null && !templateData.isEmpty()){
             parsedTemplateData.putAll((JSONObject) JSONSerializer.toJSON(templateData));            
         }
@@ -202,6 +201,11 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
     }
     
     private void verifyPriorInstalledRevisions(Profile profile, Version upTo) {
+        
+        if(upTo == Version.NONE) {
+            return;
+        }
+        
         log("Verifying prior installed revisions up to " + upTo);
         for(Revision rev : profile.getRevisions()) {
             if(rev.getVersion().compareTo(upTo) <= 0) {

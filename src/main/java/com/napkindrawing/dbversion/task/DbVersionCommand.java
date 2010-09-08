@@ -65,6 +65,37 @@ public abstract class DbVersionCommand extends SQLExec  {
         super();
     }
     
+    protected String prependLogPrefix(String msg) {
+        if(getUrl() != null && !getUrl().isEmpty()) {
+            String prefix = "[" + getUrl() + "] ";
+            if(msg.startsWith(prefix)) {
+                return msg;
+            }
+            return  prefix + msg;
+        }
+        return msg;
+    }
+    
+    @Override
+    public void log(String msg, int msgLevel) {
+        super.log(prependLogPrefix(msg), msgLevel);
+    }
+
+    @Override
+    public void log(String msg, Throwable t, int msgLevel) {
+        super.log(prependLogPrefix(msg), t, msgLevel);
+    }
+
+    @Override
+    public void log(String msg) {
+        super.log(prependLogPrefix(msg));
+    }
+
+    @Override
+    public void log(Throwable t, int msgLevel) {
+        super.log(t, msgLevel);
+    }
+
     @Override
     public void init() {
         super.init();
@@ -152,6 +183,10 @@ public abstract class DbVersionCommand extends SQLExec  {
             
             getProfileByName(pn).getInstalledRevisions().add(i);
             
+            if(!installedProfileNames.contains(pn)) {
+                installedProfileNames.add(pn);
+            }
+            
             if(!maxInstalledVersionByProfile.containsKey(pn)) {
                 maxInstalledVersionByProfile.put(pn, v);
             } else {
@@ -170,7 +205,6 @@ public abstract class DbVersionCommand extends SQLExec  {
         Statement stmt = null;
         
         try {
-            log("Querying Database: " + getUrl());
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM __database_revision");
             
@@ -192,6 +226,15 @@ public abstract class DbVersionCommand extends SQLExec  {
         
         summarizeInstalledRevisions();
         
+    }
+    
+    protected List<String> installedProfileNames = new ArrayList<String>();
+    
+    public List<String> getInstalledProfileNames() {
+        if(installedProfileNames == null) {
+            loadInstalledRevisions();
+        }
+        return installedProfileNames;
     }
     
     public List<InstalledRevision> getInstalledRevisions() {

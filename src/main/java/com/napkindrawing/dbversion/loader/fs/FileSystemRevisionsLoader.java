@@ -24,8 +24,6 @@ import java.util.TreeSet;
 
 import org.apache.tools.ant.BuildException;
 
-import sun.security.action.GetLongAction;
-
 import com.napkindrawing.dbversion.Revision;
 import com.napkindrawing.dbversion.Version;
 import com.napkindrawing.dbversion.loader.RevisionLoader;
