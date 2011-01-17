@@ -1,3 +1,18 @@
+/*
+ * Copyright 2010 NapkinDrawing LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.napkindrawing.dbversion.loader.fs;
 
 import java.io.File;
@@ -20,11 +35,12 @@ public class FileSystemRevisionLoader extends FileSystemLoader implements Revisi
         
         if(revisionFile.getName().length() > 10) {
             // Strip out version prefix and ".sql" suffix
-            revision.setName(revisionFile.getName().substring(7,revisionFile.getName().length()-4));
+            revision.setName(revisionFile.getName().substring(6,revisionFile.getName().length()-4));
         }
         
         try {
             revision.setUpgradeScriptTemplate( FileUtils.readFileToString(revisionFile, "UTF-8"));
+            revision.assignUpgradeScriptTemplateChecksum();
         } catch (IOException e) {
             throw new RuntimeException("Error reading upgrade script", e);
         }

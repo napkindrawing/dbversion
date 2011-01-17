@@ -34,6 +34,12 @@
     <version-ant>1.8.1</version-ant>
     <version-junit>4.8.1</version-junit>
     <version-commons-io>1.4</version-commons-io>
+    <version-commons-beanutils>1.8.0</version-commons-beanutils>
+    <version-commons-collections>3.2.1</version-commons-collections>
+    <version-commons-codec>1.4</version-commons-codec>
+    <version-commons-lang>2.4</version-commons-lang>
+    <version-commons-logging>1.1.1</version-commons-logging>
+    <version-ezmorph>1.0.6</version-ezmorph>
     <version-freemarker>2.3.16</version-freemarker>
     <version-json-lib>2.3</version-json-lib>
     
@@ -51,6 +57,31 @@
       <version>${version-commons-io}</version>
     </dependency>
     <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>${version-commons-beanutils}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>${version-commons-collections}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>${version-commons-codec}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${version-commons-lang}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${version-commons-logging}</version>
+    </dependency>
+    <dependency>
       <groupId>net.sf.json-lib</groupId>
       <artifactId>json-lib</artifactId>
       <version>${version-json-lib}</version>
@@ -60,6 +91,11 @@
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>${version-freemarker}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ezmorph</groupId>
+      <artifactId>ezmorph</artifactId>
+      <version>${version-ezmorph}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.ant</groupId>

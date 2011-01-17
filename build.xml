@@ -31,32 +31,34 @@
     
     <target name="info">
         <dbVersionInfo driver="com.mysql.jdbc.Driver"
-                         url="jdbc:mysql://localhost/foo"
-                         userid="root"
-                         password="toor"
-                         classpathref="class.path">
+                       url="jdbc:mysql://localhost/foo"
+                       userid="root"
+                       password="toor"
+                       classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
         </dbVersionInfo>
     </target>
     
     <target name="init">
         <dbVersionInit driver="com.mysql.jdbc.Driver"
-                         url="jdbc:mysql://localhost/foo"
-                         userid="root"
-                         password="toor"
-                         forceInit="true"
-                         classpathref="class.path">
+                       url="jdbc:mysql://localhost/foo"
+                       userid="root"
+                       password="toor"
+                       forceInit="true"
+                       classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
         </dbVersionInit>
     </target>
     
     <target name="upgrade">
         <dbVersionUpgrade driver="com.mysql.jdbc.Driver"
-                         url="jdbc:mysql://localhost/foo"
-                         userid="root"
-                         password="toor"
-                         profileNames="restaurant,hospital"
-                         classpathref="class.path">
+                          url="jdbc:mysql://localhost/foo"
+                          userid="root"
+                          password="toor"
+                          profileNames="restaurant,hospital"
+                          templateDataFiles='./sql/exampleRestaurant.json'
+                          delimiterType="row"
+                          classpathref="class.path">
           <loaderProperty name="profiles.path" value="./sql" />
         </dbVersionUpgrade>
     </target>

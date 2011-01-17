@@ -1,0 +1,43 @@
+dbversion
+Copyright 2010 NapkinDrawing LLC
+
+Google Diff Match and Patch
+
+    This project includes some files from the Google Diff Match and Patch
+    project found at http://code.google.com/p/google-diff-match-patch/ and
+    licensed under the Apache License, Version 2.0
+
+Freemarker
+
+    Copyright (c) 2003 The Visigoth Software Society. All rights reserved.
+
+    This product includes software developed by the Visigoth Software Society
+    (http://www.visigoths.org/).
+
+JSON
+
+    This product includes software developed by Douglas Crockford (http://www.crockford.com).
+
+JSON-lib
+
+    This project includes some files from the JSON-lib project found at
+    http://json-lib.sourceforge.net/ and licensed under the Apache License,
+    Version 2.0
+
+Apache Commons
+
+    This project includes some files from the Apache Commons library project
+    found at http://commons.apache.org/ and licensed under the Apache License,
+    Version 2.0
+
+Aspell, from commons-codec
+
+    --------------------------------------------------------------------------------
+    src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java contains 
+    test data from http://aspell.sourceforge.net/test/batch0.tab.
+
+    Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org). Verbatim copying
+    and distribution of this entire article is permitted in any medium,
+    provided this notice is preserved.
+    --------------------------------------------------------------------------------
+

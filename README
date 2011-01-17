@@ -1,1 +1,49 @@
-Hello, World!
+dbversion - Database versioning and deployment/migration management
+
+Purpose:
+
+    Allows incremental upgrades to be applied to a database, and verifies that
+    previous upgrades have been applied.
+
+Usage:
+
+    Database revisions are organized into profiles. A profile is simply the name
+    of the directory containing the revisions.
+
+    All revisions are stored as SQL files, one per version.
+
+    All revisions have a version number, which is zero-padded and five digits long.
+
+    Revision files are named in a standard convention consisting of the following
+    items concatenated together
+
+        1. Version Number
+        2. The character "-" or "_"
+        3. A textual name for the revision
+        4. The characters ".sql"
+    
+
+Sample Project Layout:
+
+    The following project has two profiles. One, "core", contains the core schema
+    for the application, the other "sample_data" has testing data.
+
+    sql/
+        core/
+            00001_schema.sql
+            00002_data.sql
+            00003_bugfix-user_name_length.sql
+        sample_data/
+            00001_users.sql
+            00002_preferences.sql
+
+
+To Install:
+
+    1. Copy files in lib/ to your ant's lib/ directory or add to your $CLASSPATH.
+
+    2. Run "mvn package" and copy target/dbversion-1.0.jar to your ant's lib/
+       directory or add to your $CLASSPATH.
+
+    3. Use the ant tasks in your project. See build.xml for an example build
+       file.
