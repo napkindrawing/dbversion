@@ -48,11 +48,15 @@ public class DbVersionInit extends DbVersionCommand {
         Connection conn = getConnection();
         Statement createStmt = null;
         Statement dropStmt = null;
+        Statement logStmt = null;
         
         String createSql = loadResourceFile("com/napkindrawing/dbversion/createRevisionTable.sql");
         
         try {
             System.out.println("Initializing Database: " + getUrl());
+
+            logStmt = conn.createStatement();
+            logStmt.execute("SELECT '"+Thread.currentThread()+"' AS thread");
             
             dropStmt = conn.createStatement();
             dropStmt.executeUpdate("DROP TABLE IF EXISTS `__database_revision`");
@@ -65,6 +69,9 @@ public class DbVersionInit extends DbVersionCommand {
         } finally  {
             if (dropStmt != null) {
                 try {dropStmt.close();}catch (SQLException ignore) {}
+            }
+            if (logStmt != null) {
+                try {logStmt.close();}catch (SQLException ignore) {}
             }
             if (createStmt != null) {
                 try {createStmt.close();}catch (SQLException ignore) {}

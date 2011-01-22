@@ -20,7 +20,7 @@ import java.util.TreeSet;
 
 public class Profile {
     private String name;
-    private SortedSet<Revision> revisions;
+    private SortedSet<Revision> revisions = new TreeSet<Revision>();
     private SortedSet<InstalledRevision> installedRevisions = new TreeSet<InstalledRevision>();
     
     public String getName() {
