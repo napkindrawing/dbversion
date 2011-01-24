@@ -92,7 +92,7 @@ public class JarLoaderTest {
         propu.setName("jar.path");
         propu.setValue("com/napkindrawing/test-sql.jar");
        
-        dbvuTask.addConfiguredLoaderProperty(prop);
+        dbvuTask.addConfiguredLoaderProperty(propu);
         
         dbvuTask.init();
         dbvuTask.execute();
