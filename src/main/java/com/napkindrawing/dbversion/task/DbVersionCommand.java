@@ -297,7 +297,7 @@ public abstract class DbVersionCommand extends SQLExec  {
         
         try {
             stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT count(*) FROM __database_revision");
+            ResultSet rs = stmt.executeQuery("SELECT count(*), '"+Thread.currentThread() + "' AS thread FROM __database_revision");
             
             if(rs.first()) {
                 return true;
@@ -335,7 +335,10 @@ public abstract class DbVersionCommand extends SQLExec  {
     }
     
     protected String loadResourceFile(String path) {
-        InputStream createInputStream = getLoader().getResourceAsStream(path);
+    	log("Attempting to load resource file: " + path);
+    	ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    	log("Loader: " + loader);
+        InputStream createInputStream = loader.getResourceAsStream(path);
         
         if(createInputStream == null) {
             throw new RuntimeException("Couldnt' load resource file: " + path);
