@@ -75,7 +75,7 @@ public abstract class DbVersionCommand extends SQLExec  {
         if(_urlHostSchema.containsKey(getUrl().hashCode())) {
             return _urlHostSchema.get(getUrl().hashCode());
         }
-        Pattern p = Pattern.compile("^jdbc:\\w+://([\\w\\.\\-\\_]+/[\\w\\.\\-\\_]+).*$");
+        Pattern p = Pattern.compile("^jdbc:\\w+://([\\w\\.\\-\\_\\:]+/[\\w\\.\\-\\_]+).*$");
         Matcher m = p.matcher(getUrl());
         if(!m.matches()) {
             throw new BuildException("Couldn't extract hostname and schema from jdbc url: " + getUrl());
