@@ -84,7 +84,7 @@ public class JarLoaderTest {
         dbvuTask.setUrl("jdbc:mysql://localhost/dbversiontest");
         dbvuTask.setDriver("com.mysql.jdbc.Driver");
         
-        dbvuTask.setProfileNames("bar,foo");
+        dbvuTask.setProfileNames("bar,foo,something-dash");
         
         dbvuTask.setProject(new Project());
         

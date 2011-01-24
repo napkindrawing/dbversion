@@ -63,7 +63,7 @@ public class JarProfilesLoader extends JarLoader implements ProfilesLoader {
 					if(DEBUG) System.out.println("        skippin!");
 					continue;
 				}
-				if(!entry.getName().matches("\\A\\w+/\\d{5}.*\\.sql\\z")) {
+				if(!entry.getName().matches("\\A[\\w\\-\\.\\:]+/\\d{5}.*\\.sql\\z")) {
 					throw new BuildException("Unrecognized file in sql jar: " + entry.getName());
 				}
 				String profileName = entry.getName().substring(0, entry.getName().indexOf("/"));
