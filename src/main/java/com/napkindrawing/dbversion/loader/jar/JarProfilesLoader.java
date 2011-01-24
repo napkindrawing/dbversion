@@ -80,7 +80,9 @@ public class JarProfilesLoader extends JarLoader implements ProfilesLoader {
 				if(DEBUG) System.out.println("         Full version Name: " + versionNameFull);
 				String versionNum = versionNameFull.substring(0,5);
 				if(DEBUG) System.out.println("         Version Num: " + versionNum);
-				
+				String versionNameComment = versionNameFull.length() > 9
+				                          ? versionNameFull.replaceFirst("\\.sql", "").substring(6)
+		                                  : "";
 				byte[] sqlBytes = new byte[ (int) entry.getSize() ];
 				if(DEBUG) System.out.println("         Reading " + entry.getSize() + " bytes");
 				
@@ -105,6 +107,7 @@ public class JarProfilesLoader extends JarLoader implements ProfilesLoader {
 				Revision revision = new Revision(new Version(versionNum));
 				revision.setUpgradeScriptTemplate(sql);
 				revision.assignUpgradeScriptTemplateChecksum();
+				revision.setName(versionNameComment);
 				
 				profile.getRevisions().add(revision);
 				

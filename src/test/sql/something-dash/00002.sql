@@ -1,0 +1,1 @@
+INSERT INTO dashed VALUES ('this version doesn''t have a comment!')
