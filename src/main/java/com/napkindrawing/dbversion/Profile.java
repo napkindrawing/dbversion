@@ -23,6 +23,9 @@ public class Profile {
     private SortedSet<Revision> revisions;
     private SortedSet<InstalledRevision> installedRevisions = new TreeSet<InstalledRevision>();
     
+    private Version maxVersion;
+    private Version maxInstalledVersion;
+    
     public String getName() {
         return name;
     }
@@ -49,5 +52,17 @@ public class Profile {
             }
         }
         return null;
+    }
+    public Version getMaxVersion() {
+        return maxVersion;
+    }
+    public void setMaxVersion(Version maxVersion) {
+        this.maxVersion = maxVersion;
+    }
+    public Version getMaxInstalledVersion() {
+        return maxInstalledVersion;
+    }
+    public void setMaxInstalledVersion(Version maxInstalledVersion) {
+        this.maxInstalledVersion = maxInstalledVersion;
     }
 }

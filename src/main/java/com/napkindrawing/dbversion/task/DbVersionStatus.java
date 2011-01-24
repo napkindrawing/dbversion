@@ -15,8 +15,14 @@
  */
 package com.napkindrawing.dbversion.task;
 
-import com.napkindrawing.dbversion.Version;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Property;
+
+import com.napkindrawing.dbversion.Profile;
+import com.napkindrawing.dbversion.Version;
 
 
 public class DbVersionStatus extends DbVersionCommand {
@@ -45,4 +51,49 @@ public class DbVersionStatus extends DbVersionCommand {
         }
         
     }
+    
+    /**
+     * Runs this task without printing a summary to standard out.
+     */
+    public List<Profile> executeStatus() {
+        super.execute();
+
+        return getProfiles();
+    }
+    
+    public static void main(String[] args) {
+        
+        System.out.println("Howdy!");
+        
+        DbVersionStatus dbvStatus = new DbVersionStatus();
+        
+        Project project = new Project();
+        project.setName("Testing");
+        
+        dbvStatus.setProject(project);
+        dbvStatus.setUserid("root");
+        dbvStatus.setPassword("toor");
+        dbvStatus.setDriver("com.mysql.jdbc.Driver");
+        dbvStatus.setUrl("jdbc:mysql://localhost/global");
+        
+        Property profilePath = new Property();
+        profilePath.setName("profiles.path");
+        profilePath.setValue("/home/mwalker/workspace/mwalker-enroll/enroll-database/src/main/sql");
+        
+        dbvStatus.addConfiguredLoaderProperty(profilePath);
+
+        dbvStatus.init();
+        List<Profile> profiles = dbvStatus.executeStatus();
+        
+        for(Profile profile : profiles) {
+            
+            System.out.printf(
+                "Installed/Available: %s/%s  Profile: %s\n",
+                profile.getMaxInstalledVersion(),
+                profile.getMaxVersion(),
+                profile.getName()
+            );
+        }        
+    }
+    
 }

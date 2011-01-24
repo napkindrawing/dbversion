@@ -42,6 +42,7 @@
     <version-ezmorph>1.0.6</version-ezmorph>
     <version-freemarker>2.3.16</version-freemarker>
     <version-json-lib>2.3</version-json-lib>
+    <version-mysql-connector>5.1.6</version-mysql-connector>
     
     <!-- Plugin Versions -->
     <version-plugin-compiler>2.0.2</version-plugin-compiler>
@@ -50,6 +51,12 @@
   </properties>
 
   <dependencies>
+    
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${version-mysql-connector}</version>
+    </dependency>
     
     <dependency>
       <groupId>commons-io</groupId>

@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.JDBCTask;
 import org.apache.tools.ant.taskdefs.Property;
 import org.apache.tools.ant.taskdefs.SQLExec;
 
@@ -182,11 +181,16 @@ public abstract class DbVersionCommand extends SQLExec  {
                 Version v = revision.getVersion();
                 if(!maxVersionByProfile.containsKey(pn)) {
                     maxVersionByProfile.put(pn, v);
+                    profile.setMaxVersion(v);
                 } else {
                     if(maxVersionByProfile.get(pn).compareTo(v) < 0) {
                         maxVersionByProfile.put(pn, v);
+                        profile.setMaxVersion(v);
                     }
                 }
+            }
+            if(profile.getMaxVersion() == null) {
+                profile.setMaxVersion(Version.NONE);
             }
         }
     }
@@ -216,10 +220,17 @@ public abstract class DbVersionCommand extends SQLExec  {
             
             if(!maxInstalledVersionByProfile.containsKey(pn)) {
                 maxInstalledVersionByProfile.put(pn, v);
+                getProfileByName(pn).setMaxInstalledVersion(v);
             } else {
                 if(maxInstalledVersionByProfile.get(pn).compareTo(v) < 0) {
                     maxInstalledVersionByProfile.put(pn, v);
+                    getProfileByName(pn).setMaxInstalledVersion(v);
                 }
+            }
+        }
+        for(Profile p : getProfiles()) {
+            if(p.getMaxInstalledVersion() == null) {
+                p.setMaxInstalledVersion(Version.NONE);
             }
         }
     }

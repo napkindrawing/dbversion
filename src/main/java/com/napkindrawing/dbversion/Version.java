@@ -49,6 +49,6 @@ public class Version implements Comparable<Version> {
         return id.hashCode();
     }
     public String toString() {
-        return id.isEmpty() ? "[NONE]" : id;
+        return id.isEmpty() ? "[N/A]" : id;
     }
 }
