@@ -36,10 +36,12 @@ public class JarProfilesLoader extends JarLoader implements ProfilesLoader {
     
     ProfileLoader profileLoader;
     
+    public boolean DEBUG = false;
+    
     @Override
     public List<Profile> loadProfiles() {
         
-    	System.out.println("JarProfilesLoader.loadProfiles: " + getJarPath());
+    	if(DEBUG) System.out.println("JarProfilesLoader.loadProfiles: " + getJarPath());
     	
     	if(getJarPath() == null) {
     		throw new BuildException("jarPath is null!");
@@ -55,50 +57,50 @@ public class JarProfilesLoader extends JarLoader implements ProfilesLoader {
         
         try {
 			while((entry = zin.getNextEntry()) != null) {
-				System.out.println("   Jar Entry [isDirectory:"+entry.isDirectory()+"] >>> " + entry.getName());
-				System.out.println("       " + entry.toString());
+				if(DEBUG) System.out.println("   Jar Entry [isDirectory:"+entry.isDirectory()+"] >>> " + entry.getName());
+				if(DEBUG) System.out.println("       " + entry.toString());
 				if(entry.getName().matches("\\AMETA-INF.*") || entry.isDirectory()) {
-					System.out.println("        skippin!");
+					if(DEBUG) System.out.println("        skippin!");
 					continue;
 				}
 				if(!entry.getName().matches("\\A\\w+/\\d{5}.*\\.sql\\z")) {
 					throw new BuildException("Unrecognized file in sql jar: " + entry.getName());
 				}
 				String profileName = entry.getName().substring(0, entry.getName().indexOf("/"));
-				System.out.println("        Profile: " + profileName);
+				if(DEBUG) System.out.println("        Profile: " + profileName);
 				Profile profile = profilesByName.get(profileName);
 				if(profile == null) {
-					System.out.println("        Adding Profile");
+					if(DEBUG) System.out.println("        Adding Profile");
 					profile = new Profile();
 					profile.setName(profileName);
 					profiles.add(profile);
 					profilesByName.put(profileName, profile);
 				}
 				String versionNameFull = entry.getName().substring(entry.getName().indexOf("/")+1);
-				System.out.println("         Full version Name: " + versionNameFull);
+				if(DEBUG) System.out.println("         Full version Name: " + versionNameFull);
 				String versionNum = versionNameFull.substring(0,5);
-				System.out.println("         Version Num: " + versionNum);
+				if(DEBUG) System.out.println("         Version Num: " + versionNum);
 				
 				byte[] sqlBytes = new byte[ (int) entry.getSize() ];
-				System.out.println("         Reading " + entry.getSize() + " bytes");
+				if(DEBUG) System.out.println("         Reading " + entry.getSize() + " bytes");
 				
 				int count;
 				byte[] sqlBuf = new byte[2048];
 				int totalCount = 0;
 				
 				while(( count = zin.read(sqlBuf)) != -1) {
-					System.out.println("         arrayCopy(sqlBuf, 0, sqlBytes," + totalCount+","+count+")");
+					if(DEBUG) System.out.println("         arrayCopy(sqlBuf, 0, sqlBytes," + totalCount+","+count+")");
 					
 					System.arraycopy(sqlBuf, 0, sqlBytes, totalCount, count);
 					totalCount += count;
 				}
-				System.out.println("         Total bytes read: " + totalCount);
+				if(DEBUG) System.out.println("         Total bytes read: " + totalCount);
 				
 				String sql = new String(sqlBytes);
 				
-				System.out.println("==========SQL:=========================================");
-				System.out.println(sql);
-				System.out.println("======================================================");
+				if(DEBUG) System.out.println("==========SQL:=========================================");
+				if(DEBUG) System.out.println(sql);
+				if(DEBUG) System.out.println("======================================================");
 				
 				Revision revision = new Revision(new Version(versionNum));
 				revision.setUpgradeScriptTemplate(sql);
@@ -112,25 +114,6 @@ public class JarProfilesLoader extends JarLoader implements ProfilesLoader {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
-        
-        
-    	/*
-        if(!getProfilesDir().isDirectory() || !getProfilesDir().canRead()) {
-            throw new RuntimeException("Profiles path <"+getProfilesDir()+"> must be readable directory");
-        }
-
-        for(File profileDirEntry : getProfilesDir().listFiles()) {
-            if(profileDirEntry.getName().equals("config.properties")) {
-                if(profileDirEntry.isDirectory()) {
-                    throw new RuntimeException("Uhhhh config.properties should be a file...");
-                }
-                // TODO: load config.properties
-                // config = ResourceUtils.
-            } else if(profileDirEntry.isDirectory() && !profileDirEntry.getName().startsWith(".")) {
-                profiles.add(profileLoader.loadProfile(profileDirEntry.getName()));
-            }
-        }
-        */
         
         return profiles;
     }

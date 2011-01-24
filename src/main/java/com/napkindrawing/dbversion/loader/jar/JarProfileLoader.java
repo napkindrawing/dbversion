@@ -15,8 +15,6 @@
  */
 package com.napkindrawing.dbversion.loader.jar;
 
-import java.io.File;
-
 import com.napkindrawing.dbversion.Profile;
 import com.napkindrawing.dbversion.loader.ProfileLoader;
 import com.napkindrawing.dbversion.loader.RevisionsLoader;
@@ -25,19 +23,12 @@ public class JarProfileLoader extends JarLoader implements ProfileLoader {
     
     RevisionsLoader revisionsLoader;
     
+    /**
+     * Null implementation, actual implementation is in {@link JarProfilesLoader}
+     */
     @Override
-    public Profile loadProfile(String profileName) {
-    	
-    	Profile profile = new Profile();
-        
-    	/*
-        File profileDir = getProfileDir(profileName);
-        
-        profile.setName(profileDir.getName());
-        
-        profile.setRevisions(revisionsLoader.loadRevisions(profileName));
-          */      
-        return profile;
+    public Profile loadProfile(String profileName) {     
+        return null;
     }
 
     @Override

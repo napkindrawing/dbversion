@@ -39,22 +39,7 @@ import com.napkindrawing.dbversion.loader.RevisionsLoader;
 public class JarLoader implements Configurable, LoaderSpec {
 
     String jarPath;
-    /*
-    protected File getProfileDir(String profileName) {
-
-        File[] profileDirs = getProfilesDir().listFiles(new MatchingFilenameFilter(profileName));
-        
-        if(profileDirs.length == 0) {
-            throw new RuntimeException("Profile '"+profileName+"' not found in profile directory "+getProfilesDir().getPath());
-        }
-        
-        if(!profileDirs[0].isDirectory() || !profileDirs[0].canRead()) {
-            throw new RuntimeException("Profile path must be readable directory");
-        }
-        
-        return profileDirs[0];
-    }
-    */
+    
     @Override
     public void configure(Properties properties) {
         jarPath = properties.getProperty("jar.path");

@@ -371,5 +371,13 @@ public abstract class DbVersionCommand extends SQLExec  {
             // ignore
         }
     }
+
+    public Boolean getCheckInitTables() {
+        return checkInitTables;
+    }
+
+    public void setCheckInitTables(Boolean checkInitTables) {
+        this.checkInitTables = checkInitTables;
+    }
     
 }
