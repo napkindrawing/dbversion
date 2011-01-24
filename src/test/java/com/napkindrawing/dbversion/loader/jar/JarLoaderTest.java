@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Property;
 import org.junit.Test;
 
@@ -83,11 +84,18 @@ public class JarLoaderTest {
         dbvuTask.setUrl("jdbc:mysql://localhost/dbversiontest");
         dbvuTask.setDriver("com.mysql.jdbc.Driver");
         
+        dbvuTask.setProfileNames("bar,foo");
+        
+        dbvuTask.setProject(new Project());
+        
         Property propu = new Property();
         propu.setName("jar.path");
         propu.setValue("com/napkindrawing/test-sql.jar");
        
         dbvuTask.addConfiguredLoaderProperty(prop);
+        
+        dbvuTask.init();
+        dbvuTask.execute();
 
 	}
 }
