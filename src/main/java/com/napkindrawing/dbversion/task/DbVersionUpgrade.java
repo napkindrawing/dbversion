@@ -148,7 +148,7 @@ public class DbVersionUpgrade extends DbVersionProfileCommand {
         
         if(getConnection() != null) {
             try {
-                parsedTemplateData.put("db.schema", getConnection().getCatalog());
+                parsedTemplateData.put("dbSchema", getConnection().getCatalog());
             } catch (SQLException e) {
                 throw new BuildException("Couldn't extract catalog from connection", getLocation());
             }
